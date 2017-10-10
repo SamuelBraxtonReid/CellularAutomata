@@ -1,3 +1,3 @@
 # CellularAutomata
 
-This is a web app that will allow users to design cellular automata with different behaviors by altering various initial settings.
+This is a web application that will allow users to design cellular automata with different behaviors by altering various initial settings.
