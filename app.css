@@ -2,14 +2,14 @@
   width: 500px;
   margin: 10% auto;
   height: 500px;
-  background: red;
+  background: white;
 }
 
 .row {
   width: 100%;
   position: relative;
   display: flex;
-  background: green;
+  background: white;
 }
 
 .column {
