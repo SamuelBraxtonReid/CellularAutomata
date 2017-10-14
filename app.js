@@ -1,16 +1,8 @@
-/*
-const box = document.createElement("div");
-box.style.width = "100px";
-box.style.height = "100px";
-box.style.background = "black";
-const container = document.querySelector("#main");
-container.appendChild(box);
-*/
-class App {
+class App{
 
   constructor(){
     this.container = document.querySelector("#main");
-    this.gridSize = 49;
+    this.gridSize = 25;
     this.gameBoard = new Array(this.gridSize);
     for (let row = 0; row < this.gridSize; row++){
       this.gameBoard[row] = new Array(this.gridSize);
@@ -20,19 +12,12 @@ class App {
         this.createColumn(row, column);
       }
     }
-    this.run();
-  }
-
-  run(){
-    this.gameBoard[23][24] = 1;
-    this.gameBoard[23][25] = 1;
-    this.gameBoard[24][23] = 1;
-    this.gameBoard[24][24] = 1;
-    this.gameBoard[25][24] = 1;
-    for (let i = 0; i < 10; i++){
-      this.updateScreen();
-      this.updateBoard();
-    }
+    this.gameBoard[11][12] = 3;
+    this.gameBoard[11][13] = 3;
+    this.gameBoard[12][11] = 3;
+    this.gameBoard[12][12] = 3;
+    this.gameBoard[13][12] = 3;
+    setInterval(() => {this.updateBoard();},100);
   }
 
   updateBoard(){
@@ -73,26 +58,14 @@ class App {
     }
     for (let i = 0; i < this.gameBoard.length; i++){
       for (let j = 0; j < this.gameBoard[i].length; j++){
-        if (this.gameBoard[i][j] == 2){
-          this.gameBoard[i][j] = 0;
-        } else if (this.gameBoard[i][j] == 3){
-          this.gameBoard[i][j] = 1;
-        }
-      }
-    }
-  }
-
-  updateScreen(){
-    for (let i = 0; i < this.gameBoard.length; i++){
-      for (let j = 0; j < this.gameBoard.length; j++){
         const ID = this.gridSize * i + j;
         const cell = document.querySelector(`[data-column='${ID}']`);
-        if (this.gameBoard[i][j] == 0){
-          cell.style.background = "grey";
-        } else if (this.gameBoard[i][j] == 1) {
+        if (this.gameBoard[i][j] == 2){
           cell.style.background = "black";
-        } else {
-          cell.style.background = "red";
+          this.gameBoard[i][j] = 0;
+        } else if (this.gameBoard[i][j] == 3){
+          cell.style.background = "white";
+          this.gameBoard[i][j] = 1;
         }
       }
     }
