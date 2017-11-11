@@ -13,7 +13,38 @@
 }
 
 .column {
-  //outline: #000000 solid 1px;
+  /*outline: #000000 solid 1px;*/
   height: 100%;
   background: black;
+}
+
+#neighbors {
+  width: 100px;
+  height: 100px;
+}
+
+.selectRow {
+  display: flex;
+  position: relative;
+  height: 20%;
+  width: 100%;
+  background: rgb(158,158,158); /*whitesmoke*/
+}
+
+.selectColumn {
+  outline: #FFFFFF solid 1px;
+  height: 100%;
+  width: 20%;
+  background: rgb(158,158,158);
+}
+
+.selectColumn:hover {
+  background: rgb(97,97,97);
+}
+
+.center {
+  outline: #FFFFFF solid 1px;
+  height: 100%;
+  width: 20%;
+  background: rgb(60,60,60);
 }
