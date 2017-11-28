@@ -39,7 +39,7 @@
 }
 
 .selectColumn:hover {
-  background: rgb(97,97,97);
+  background: rgb(128,128,128)!important;
 }
 
 .center {

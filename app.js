@@ -2,27 +2,37 @@
 class App{
 
   constructor(dimension){
-    this.testArea = [[-1,1],[0,1],[1,1],[-1,0],[1,0],[-1,-1],[0,-1],[1,-1]];
-    var self = this;
     document.querySelectorAll(".selectColumn").forEach((column)=>{
       column.addEventListener("click",this.toggleColor.bind(this));
     });
+    this.testArea = [[-1,1],[0,1],[1,1],[-1,0],[1,0],[-1,-1],[0,-1],[1,-1]];
     for (let i = 0; i < this.testArea.length; i++) {
       const cellID = this.testArea[i].join(",");
-      document.querySelector(`[data-id='${cellID}']`).style.background = 'rgb(97, 97, 97)';
+      const cell = document.querySelector(`[data-id='${cellID}']`);
+      cell.style.background = 'rgb(97, 97, 97)';
+      cell.setAttribute('data-active','1');
     }
     this.start(dimension);
   }
 
   prepStartingConfiguration() {
-    this.deadCells = new Set();
+    for (const deadCell of this.deadCells) {
+      this.cells.delete(deadCell)
+    }
+    for (const newCell of this.newCells) {
+      this.cells.add(newCell)
+    }
+    this.newCells = new Set([...this.cells.values()]);
     for (const newCell of this.newCells) {
       for (let i = 0; i < this.testArea.length; i++) {
         let cell = newCell + this.testArea[i][0] * this.gridSize + this.testArea[i][1];
         if (cell < 0 || cell >= this.gridSize**2) {
           continue;
         }
-        if (this.newCells.has(cell)) {
+        if (Math.abs((cell % this.gridSize) - (newCell % this.gridSize)) > 2) {
+          continue;
+        }
+        if (this.newCells.has(cell) || this.deadCells.has(cell)) {
           break;
         }
         this.deadCells.add(cell);
@@ -33,16 +43,17 @@ class App{
 
   toggleColor(e) {
     const cell = e.target;
-    const color = window.getComputedStyle(cell).backgroundColor;
     let test = cell.getAttribute('data-id').split(',');
     for (let i = 0; i < 2; i++){
       test[i] = parseInt(test[i]);
     }
-    if (color === 'rgb(158, 158, 158)') {
+    if (cell.getAttribute('data-active') === '0') {
       cell.style.background = 'rgb(97, 97, 97)';
+      cell.setAttribute('data-active','1');
       this.testArea.push(test);
-    } else if (color === 'rgb(97, 97, 97)') {
-      cell.style.background = 'rgb(158, 158, 158)';
+    } else {
+      cell.style.background = 'rgb(158, 158, 158)'
+      cell.setAttribute('data-active','0');
       for (let i = 0; i < this.testArea.length; i++) {
         if (this.testArea[i][0] === test[0] && this.testArea[i][1] === test[1]) {
           this.testArea.splice(i,1);
@@ -50,9 +61,10 @@ class App{
         }
       }
     }
+    this.prepStartingConfiguration();
   }
 
-  setUpdate(){
+  update(){
     for (const newCell of this.newCells) {
       const cell = document.querySelector(`[data-column='${newCell}']`);
       cell.style.background = "white";
@@ -71,7 +83,7 @@ class App{
         } else if (cell >= this.gridSize**2) {
           cell -= this.gridSize**2;
         }
-        if (Math.abs((cell % this.gridSize) - (activeCell % this.gridSize)) > 1) {
+        if (Math.abs((cell % this.gridSize) - (activeCell % this.gridSize)) > 2) {
             cell -= this.testArea[i][1] * this.gridSize;
             if (cell < 0) {
               cell += this.gridSize**2;
@@ -93,7 +105,7 @@ class App{
         } else if (testCell >= this.gridSize**2) {
           testCell -= this.gridSize**2;
         }
-        if (Math.abs((testCell % this.gridSize) - (affectedCell % this.gridSize)) > 1) {
+        if (Math.abs((testCell % this.gridSize) - (affectedCell % this.gridSize)) > 2) {
           testCell -= this.testArea[i][1] * this.gridSize;
           if (testCell < 0) {
             testCell += this.gridSize**2;
@@ -142,9 +154,9 @@ class App{
       g += Math.round(Math.random() * (255 - g));
       b += Math.round(Math.random() * (255 - b));
     }
-    columnDiv.style.background = `rgb(${0},${g},${b})`
     */
-    columnDiv.style.background = "black";
+    //columnDiv.style.background = `rgb(${0},${g},${b})`
+    columnDiv.style.background = 'black'
     document.querySelector(`[data-row='${rowID}']`).appendChild(columnDiv);
   }
 
@@ -160,20 +172,51 @@ class App{
         this.createColumn(row, column);
       }
     }
-    this.cells = new Set([5050,5149,5249,5253,5349,5350,5351,5352]);
-    this.newCells = new Set([5050,5149,5249,5253,5349,5350,5351,5352]);
+    this.cells = new Set();
+    this.newCells = new Set();
     this.deadCells = new Set();
     this.prepStartingConfiguration();
-    this.intervalId = setInterval(() => {this.setUpdate();},100);
+    this.intervalId = setInterval(() => {this.update();},100);
+    document.getElementById("pausePlay").firstChild.data = "pause";
+    document.querySelectorAll(".column").forEach((column)=>{
+      column.addEventListener("click",this.makeAlive.bind(this));
+    });
+  }
+
+  makeAlive(e) {
+    const cell = e.target;
+    let test = cell.getAttribute('data-column');
+    test = parseInt(test);
+    if (!(cell.style.backgroundColor === 'white')) {
+      cell.style.background = 'white';
+      this.newCells.add(test);
+      this.deadCells.delete(test);
+    } else {
+      cell.style.background = 'black';
+      this.deadCells.add(test);
+      this.newCells.delete(test);
+    }
+    this.prepStartingConfiguration();
   }
 
 }
 
-const app = new App(100)
+const app = new App(100);
 
-function hello(){
+function updateGridSize(){
   const dimension = document.getElementById("sample4").value;
   if (dimension && dimension != app.gridSize) {
     app.start(dimension);
+  }
+}
+
+function togglePausePlay(){
+  if (app.intervalId) {
+    clearInterval(app.intervalId);
+    app.intervalId = null;
+    document.getElementById("pausePlay").firstChild.data = "play";
+  } else {
+    app.intervalId = setInterval(() => {app.update();},100);
+    document.getElementById("pausePlay").firstChild.data = "pause";
   }
 }
